@@ -25,7 +25,14 @@ class DMG_Read_More {
     }
     
     public function init() {
-        
+        // Block registration
+        $this->register_block();
+    }
+
+    public function register_block() {
+        register_block_type(
+            DMG_READ_MORE_PLUGIN_DIR . 'src/read-more-block'
+        );
     }
 }
 

@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "dmg/read-more",
+    "version": "1.0.0",
+    "title": "DMG Read More",
+    "category": "widgets",
+    "icon": "admin-links",
+    "description": "Insert a stylized link to a published post with search functionality.",
+    "keywords": ["link", "post", "read more"],
+    "textdomain": "dmg-read-more",
+    "attributes": {
+        "postId": {
+            "type": "number",
+            "default": 0
+        },
+        "postTitle": {
+            "type": "string",
+            "default": ""
+        },
+        "postUrl": {
+            "type": "string",
+            "default": ""
+        }
+    },
+    "supports": {
+        "html": false,
+        "reusable": true
+    },
+    "editorScript": "file:../../build/read-more-block.js",
+    "editorStyle": "file:../../build/read-more-block.css",
+    "style": "file:./css/style.css"
+}
