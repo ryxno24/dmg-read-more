@@ -1,0 +1,21 @@
+{
+  "name": "dmg-read-more",
+  "version": "1.0.0",
+  "description": "WordPress plugin with Gutenberg block for post links",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start",
+    "dev": "wp-scripts start"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^27.0.0"
+  },
+  "dependencies": {
+    "@wordpress/api-fetch": "^6.44.0",
+    "@wordpress/block-editor": "^12.15.0",
+    "@wordpress/blocks": "^12.24.0",
+    "@wordpress/components": "^25.13.0",
+    "@wordpress/element": "^5.24.0",
+    "@wordpress/i18n": "^4.47.0"
+  }
+}
