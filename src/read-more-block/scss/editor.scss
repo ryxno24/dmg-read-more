@@ -1,0 +1,21 @@
+@use 'sass:math';
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.dmg-read-more-block-editor {
+    background: $editor-background;
+    border: 2px dashed $editor-border-color;
+    border-radius: 4px;
+    padding: math.div($editor-padding, 2) $editor-padding $editor-padding;
+    text-align: center;
+
+    // Style the preview to match frontend
+    .dmg-read-more {
+        @include dmg-read-more-styles;
+    }
+}
+
+.dmg-read-more-placeholder {
+    color: $placeholder-color;
+    font-style: italic;
+}

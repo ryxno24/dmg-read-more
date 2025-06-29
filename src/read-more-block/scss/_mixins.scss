@@ -1,0 +1,30 @@
+@use 'variables' as *;
+
+// Mixin for the dmg-read-more component styles
+@mixin dmg-read-more-styles {
+    font-size: $font-size-sm;
+    line-height: $line-height;
+
+    @media (min-width: $breakpoint-sm) {
+        font-size: $font-size;
+    }
+
+    a {
+        background-color: $button-background;
+        border: 2px solid $button-border-color;
+        border-radius: 4px;
+        color: $button-text-color;
+        display: inline-block;
+        font-weight: bold;
+        margin-top: 16px;
+        padding: $button-padding;
+        text-decoration: none;
+        transition: $button-transition;
+
+        &:hover {
+            background-color: transparent;
+            color: $button-background;
+            outline: none;
+        }
+    }
+}

@@ -27,7 +27,7 @@
         "html": false,
         "reusable": true
     },
-    "editorScript": "file:../../build/read-more-block.js",
-    "editorStyle": "file:./css/editor.css",
-    "style": "file:./css/style.css"
+    "editorScript": "file:../../build/js/read-more-block.js",
+    "editorStyle": "file:../../build/css/editor.css",
+    "style": "file:../../build/css/style.css"
 }
