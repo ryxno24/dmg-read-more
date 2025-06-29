@@ -128,23 +128,32 @@ const Edit = ({ attributes, setAttributes }) => {
                 <p>{__('No posts found', 'dmg-read-more')}</p>
             ) : (
                 <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                    {posts.map(post => (
-                        <li key={post.id} style={{ marginBottom: '8px' }}>
-                            <Button
-                                variant="secondary"
-                                onClick={() => selectPost(post)}
-                                style={{
-                                    width: '100%',
-                                    textAlign: 'left',
-                                    whiteSpace: 'normal',
-                                    height: 'auto',
-                                    padding: '8px'
-                                }}
-                            >
-                                {post.title.rendered || __('(No title)', 'dmg-read-more')}
-                            </Button>
-                        </li>
-                    ))}
+                    {posts.map(post => {
+                        // Check if this post is currently selected
+                        const isSelected = post.id === postId;
+
+                        return (
+                            <li key={post.id} style={{ marginBottom: '8px' }}>
+                                <Button
+                                    variant={isSelected ? "primary" : "secondary"}
+                                    onClick={() => selectPost(post)}
+                                    style={{
+                                        width: '100%',
+                                        textAlign: 'left',
+                                        whiteSpace: 'normal',
+                                        height: 'auto',
+                                        padding: '8px',
+                                        backgroundColor: isSelected ? '#0073aa' : undefined,
+                                        color: isSelected ? 'white' : undefined,
+                                        borderColor: isSelected ? '#0073aa' : undefined
+                                    }}
+                                >
+                                    {isSelected && '✓ '}
+                                    {post.title.rendered || __('(No title)', 'dmg-read-more')}
+                                </Button>
+                            </li>
+                        );
+                    })}
                 </ul>
             )}
         </div>
