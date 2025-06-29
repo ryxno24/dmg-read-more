@@ -1,5 +1,6 @@
 import { registerBlockType } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
+import apiFetch from '@wordpress/api-fetch';
 
 import {
     InspectorControls,
@@ -40,27 +41,48 @@ const Edit = ({ attributes, setAttributes }) => {
     const loadRecentPosts = async () => {
         setIsLoading(true);
         try {
-            // TODO: API call to get recent posts (placeholder for now)
-            setRecentPosts([
-                { id: 1, title: { rendered: 'Sample Post 1' }, link: '#' },
-                { id: 2, title: { rendered: 'Sample Post 2' }, link: '#' }
-            ]);
+            // Fetch recent posts through API
+            const response = await apiFetch({
+                path: '/wp/v2/posts?per_page=10&status=publish&_fields=id,title,link'
+            });
+            setRecentPosts(response);
         } catch (err) {
             setError(__('Failed to load recent posts', 'dmg-read-more'));
         }
         setIsLoading(false);
     };
 
-    // Function to handle search (placeholder)
-    const searchPosts = async () => {
+    // Function to handle search
+    const searchPosts = async (term = searchTerm) => {
+        if (!term.trim()) {
+            setSearchResults([]);
+            return;
+        }
+
         setIsLoading(true);
         setError('');
 
         try {
-            // TODO: Implement actual search logic in next commit
-            setSearchResults([]);
+            let path;
+
+            // Check if search term is a number (post ID)
+            if (/^\d+$/.test(term.trim())) {
+                path = `/wp/v2/posts/${term.trim()}?_fields=id,title,link`;
+                const post = await apiFetch({ path });
+                setSearchResults([post]);
+            } else {
+                // Text search implementation
+                path = `/wp/v2/posts?search=${encodeURIComponent(term)}&per_page=10&status=publish&_fields=id,title,link`;
+                const posts = await apiFetch({ path });
+                setSearchResults(posts);
+            }
         } catch (err) {
-            setError(__('Search failed', 'dmg-read-more'));
+            if (err.code === 'rest_post_invalid_id') {
+                setSearchResults([]);
+                setError(__('Post not found', 'dmg-read-more'));
+            } else {
+                setError(__('Search failed', 'dmg-read-more'));
+            }
         }
         setIsLoading(false);
     };
@@ -152,7 +174,15 @@ const Edit = ({ attributes, setAttributes }) => {
                         </Notice>
                     )}
 
-                    {/* Show recent posts by default */}
+                    {searchResults.length > 0 && (
+                        <div style={{ marginBottom: '20px' }}>
+                            <PostList 
+                                posts={searchResults} 
+                                title={__('Search Results', 'dmg-read-more')} 
+                            />
+                        </div>
+                    )}
+
                     {searchTerm === '' && recentPosts.length > 0 && (
                         <PostList 
                             posts={recentPosts} 
