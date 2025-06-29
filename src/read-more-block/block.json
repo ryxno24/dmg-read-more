@@ -28,6 +28,6 @@
         "reusable": true
     },
     "editorScript": "file:../../build/read-more-block.js",
-    "editorStyle": "file:../../build/read-more-block.css",
+    "editorStyle": "file:./css/editor.css",
     "style": "file:./css/style.css"
 }
