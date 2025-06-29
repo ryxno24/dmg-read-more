@@ -22,6 +22,11 @@ class DMG_Read_More {
     
     public function __construct() {
         add_action('init', array($this, 'init'));
+
+        // Load WP-CLI command if WP-CLI is available
+        if (defined('WP_CLI') && WP_CLI) {
+            $this->load_cli_command();
+        }
     }
     
     public function init() {
@@ -33,6 +38,11 @@ class DMG_Read_More {
         register_block_type(
             DMG_READ_MORE_PLUGIN_DIR . 'src/read-more-block'
         );
+    }
+
+    private function load_cli_command() {
+        require_once DMG_READ_MORE_PLUGIN_DIR . 'includes/class-dmg-read-more-cli.php';
+        WP_CLI::add_command('dmg-read-more', 'DMG_Read_More_CLI');
     }
 }
 
