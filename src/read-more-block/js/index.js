@@ -18,7 +18,8 @@ import {
 // React hooks
 import {
     useState,
-    useEffect
+    useEffect,
+    useCallback
 } from '@wordpress/element';
 
 const Edit = ({ attributes, setAttributes }) => {
@@ -26,13 +27,13 @@ const Edit = ({ attributes, setAttributes }) => {
     const blockProps = useBlockProps();
 
     // State for search functionality
-    const [ searchTerm, setSearchTerm ] = useState('');
-    const [ searchResults, setSearchResults ] = useState([]);
-    const [ recentPosts, setRecentPosts ] = useState([]);
-    const [ isLoading, setIsLoading ] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [recentPosts, setRecentPosts] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [ error, setError ] = useState('');
+    const [error, setError] = useState('');
 
     // Load recent posts on component mount
     useEffect(() => {
@@ -40,7 +41,7 @@ const Edit = ({ attributes, setAttributes }) => {
     }, []);
 
     // Function to load recent posts
-    const loadRecentPosts = async () => {
+    const loadRecentPosts = useCallback(async () => {
         setIsLoading(true);
         try {
             // Fetch recent posts through API
@@ -52,11 +53,12 @@ const Edit = ({ attributes, setAttributes }) => {
             setError(__('Failed to load recent posts', 'dmg-read-more'));
         }
         setIsLoading(false);
-    };
+    }, []);
 
     // Function to handle search
-    const searchPosts = async (term = searchTerm, page = 1) => {
-        if (!term.trim()) {
+    const searchPosts = useCallback(async (term, page = 1) => {
+        const searchTermToUse = term || searchTerm;
+        if (!searchTermToUse.trim()) {
             setSearchResults([]);
             return;
         }
@@ -68,15 +70,15 @@ const Edit = ({ attributes, setAttributes }) => {
             let path;
 
             // Check if search term is a number (post ID)
-            if (/^\d+$/.test(term.trim())) {
-                path = `/wp/v2/posts/${term.trim()}?_fields=id,title,link`;
+            if (/^\d+$/.test(searchTermToUse.trim())) {
+                path = `/wp/v2/posts/${searchTermToUse.trim()}?_fields=id,title,link`;
                 const post = await apiFetch({ path });
                 setSearchResults([post]);
                 setTotalPages(1);
                 setCurrentPage(1);
             } else {
                 // Text search implementation
-                path = `/wp/v2/posts?search=${encodeURIComponent(term)}&per_page=10&page=${page}&status=publish&_fields=id,title,link`;
+                path = `/wp/v2/posts?search=${encodeURIComponent(searchTermToUse)}&per_page=10&page=${page}&status=publish&_fields=id,title,link`;
 
                 // Get full response with headers
                 const response = await apiFetch({
@@ -88,7 +90,7 @@ const Edit = ({ attributes, setAttributes }) => {
                 const totalPagesHeader = response.headers.get('X-WP-TotalPages');
 
                 setSearchResults(posts);
-                setTotalPages(parseInt(totalPagesHeader) || 1);
+                setTotalPages(parseInt(totalPagesHeader, 10) || 1);
                 setCurrentPage(page);
             }
         } catch (err) {
@@ -100,25 +102,25 @@ const Edit = ({ attributes, setAttributes }) => {
             }
         }
         setIsLoading(false);
-    };
+    }, [searchTerm]);
 
     // Function to select a post
-    const selectPost = (post) => {
+    const selectPost = useCallback((post) => {
         setAttributes({
             postId: post.id,
             postTitle: post.title.rendered,
             postUrl: post.link
         });
-    };
+    }, [setAttributes]);
 
     // Function to clear selection
-    const clearSelection = () => {
+    const clearSelection = useCallback(() => {
         setAttributes({
             postId: 0,
             postTitle: '',
             postUrl: ''
         });
-    };
+    }, [setAttributes]);
 
     // Component to display post list
     const PostList = ({ posts, title }) => (
@@ -231,7 +233,7 @@ const Edit = ({ attributes, setAttributes }) => {
                         </div>
                     )}
 
-                    {searchTerm === '' && recentPosts.length > 0 && (
+                    {!searchTerm.trim() && recentPosts.length > 0 && (
                         <PostList 
                             posts={recentPosts} 
                             title={__('Recent Posts', 'dmg-read-more')} 
@@ -240,20 +242,15 @@ const Edit = ({ attributes, setAttributes }) => {
                 </PanelBody>
             </InspectorControls>
 
-            <div style={{ 
-                border: '2px dashed #ddd', 
-                padding: '20px', 
-                textAlign: 'center',
-                background: '#f9f9f9'
-            }}>
+            <div className="dmg-read-more-block-editor">
                 {postId > 0 ? (
-                    <p>
+                    <p className="dmg-read-more">
                         <a href={postUrl}>
                             {__('Read More: ', 'dmg-read-more')}{postTitle}
                         </a>
                     </p>
                 ) : (
-                    <p>{__('Select a post to create a "Read More" link.', 'dmg-read-more')}</p>
+                    <p className="dmg-read-more-placeholder">{__('Select a post to create a "Read More" link.', 'dmg-read-more')}</p>
                 )}
             </div>
         </div>

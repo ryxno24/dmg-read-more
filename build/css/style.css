@@ -1,0 +1,28 @@
+.dmg-read-more {
+  font-size: 14px;
+  line-height: 1.5;
+}
+@media (min-width: 640px) {
+  .dmg-read-more {
+    font-size: 16px;
+  }
+}
+.dmg-read-more a {
+  background-color: #111;
+  border: 2px solid #111;
+  border-radius: 4px;
+  color: #fff;
+  display: inline-block;
+  font-weight: bold;
+  margin-top: 16px;
+  padding: 10px;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+.dmg-read-more a:hover {
+  background-color: transparent;
+  color: #111;
+  outline: none;
+}
+
+/*# sourceMappingURL=style.css.map */
