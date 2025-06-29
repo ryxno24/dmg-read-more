@@ -30,6 +30,8 @@ const Edit = ({ attributes, setAttributes }) => {
     const [ searchResults, setSearchResults ] = useState([]);
     const [ recentPosts, setRecentPosts ] = useState([]);
     const [ isLoading, setIsLoading ] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [ error, setError ] = useState('');
 
     // Load recent posts on component mount
@@ -53,7 +55,7 @@ const Edit = ({ attributes, setAttributes }) => {
     };
 
     // Function to handle search
-    const searchPosts = async (term = searchTerm) => {
+    const searchPosts = async (term = searchTerm, page = 1) => {
         if (!term.trim()) {
             setSearchResults([]);
             return;
@@ -70,11 +72,24 @@ const Edit = ({ attributes, setAttributes }) => {
                 path = `/wp/v2/posts/${term.trim()}?_fields=id,title,link`;
                 const post = await apiFetch({ path });
                 setSearchResults([post]);
+                setTotalPages(1);
+                setCurrentPage(1);
             } else {
                 // Text search implementation
-                path = `/wp/v2/posts?search=${encodeURIComponent(term)}&per_page=10&status=publish&_fields=id,title,link`;
-                const posts = await apiFetch({ path });
+                path = `/wp/v2/posts?search=${encodeURIComponent(term)}&per_page=10&page=${page}&status=publish&_fields=id,title,link`;
+
+                // Get full response with headers
+                const response = await apiFetch({
+                    path,
+                    parse: false
+                });
+
+                const posts = await response.json();
+                const totalPagesHeader = response.headers.get('X-WP-TotalPages');
+
                 setSearchResults(posts);
+                setTotalPages(parseInt(totalPagesHeader) || 1);
+                setCurrentPage(page);
             }
         } catch (err) {
             if (err.code === 'rest_post_invalid_id') {
@@ -149,7 +164,7 @@ const Edit = ({ attributes, setAttributes }) => {
                     <div style={{ marginBottom: '16px' }}>
                         <Button 
                             variant="primary" 
-                            onClick={searchPosts}
+                            onClick={() => searchPosts()}
                             disabled={isLoading || !searchTerm.trim()}
                         >
                             {__('Search', 'dmg-read-more')}
@@ -180,6 +195,30 @@ const Edit = ({ attributes, setAttributes }) => {
                                 posts={searchResults} 
                                 title={__('Search Results', 'dmg-read-more')} 
                             />
+
+                            {totalPages > 1 && (
+                                <div style={{ marginTop: '12px', textAlign: 'center' }}>
+                                    <Button
+                                        variant="secondary"
+                                        disabled={currentPage <= 1 || isLoading}
+                                        onClick={() => searchPosts(searchTerm, currentPage - 1)}
+                                    >
+                                        {__('Previous', 'dmg-read-more')}
+                                    </Button>
+
+                                    <span style={{ margin: '0 12px' }}>
+                                        {currentPage} / {totalPages}
+                                    </span>
+
+                                    <Button
+                                        variant="secondary"
+                                        disabled={currentPage >= totalPages || isLoading}
+                                        onClick={() => searchPosts(searchTerm, currentPage + 1)}
+                                    >
+                                        {__('Next', 'dmg-read-more')}
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     )}
 
